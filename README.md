@@ -15,6 +15,12 @@ Options:
   -h, --help           Print help
 ```
 
+## Example websites
+
+- geminispace.info
+- warmedal.se
+- gemini.bortzmeyer.org
+
 ## Features yet to implement
 
 - [ ] Go forward in history
