@@ -7,3 +7,5 @@ Gemini cli client written in Rust
 - [ ] Go forward in history
 - [x] Handle INPUT 10 and 11
 - [ ] Certificates
+- [ ] Allow user to edit link
+- [ ] Bookmarks
