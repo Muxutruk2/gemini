@@ -4,14 +4,16 @@ Gemini cli client written in Rust
 
 ## Usage
 
-*Usage*: gemini [OPTIONS] <URL>
+```
+Usage: gemini [OPTIONS] <URL>
 
-*Arguments*:
+Arguments:
   <URL>
 
-*Options*:
-      --pager <PAGER>  \[default: less\] \[possible values: less, more, bat, neovim\]
+Options:
+      --pager <PAGER>  [default: less] [possible values: less, more, bat, neovim]
   -h, --help           Print help
+```
 
 ## Features yet to implement
 
