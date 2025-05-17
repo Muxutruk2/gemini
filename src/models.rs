@@ -149,6 +149,8 @@ impl TryFrom<&str> for Response {
     fn try_from(response_str: &str) -> Result<Self, ResponseError> {
         debug!("Parsing response string");
 
+        let mut count: u32 = 0;
+
         let mut lines = response_str.lines();
         let first_line = lines.next().ok_or(ResponseError::EmptyResponse)?;
 
@@ -167,10 +169,21 @@ impl TryFrom<&str> for Response {
             .ok_or(ResponseError::MissingMetaDescription)?
             .to_string();
 
-        let body = lines.collect::<Vec<&str>>().join("\n");
+        let body = lines
+            .clone()
+            .map(|line| {
+                if line.trim_start().starts_with("=>") {
+                    let result = format!("({}) {}", count, line.trim_start());
+                    count += 1;
+                    result
+                } else {
+                    line.to_string()
+                }
+            })
+            .collect::<Vec<_>>()
+            .join("\n");
 
-        let links: Vec<Link> = body
-            .lines()
+        let links: Vec<Link> = lines
             .filter_map(|line| {
                 if line.starts_with("=>") {
                     Link::try_from(line).ok()
