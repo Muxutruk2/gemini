@@ -6,8 +6,10 @@ use crossterm::{
 use log::{debug, error, info};
 use rpassword::read_password;
 use rustyline::{self, history::MemHistory, Config};
+use std::fs;
 use std::io::{self, stdout, Write};
 use std::process::{Command, Stdio};
+use tempfile::NamedTempFile;
 use url::Url;
 
 use crate::client::Client;
@@ -131,6 +133,47 @@ pub fn handle_input(client: &mut Client, response: &Response, _url: &Url) -> Opt
     Some(new_url)
 }
 
+fn get_client_prompt(client: &mut Client, response: &Response, url: &Url) -> Option<Url> {
+    let prompt = "Select a link by number or type a new URL ([q]uit [b]ack [r]eload [e]dit): ";
+
+    let input = get_user_input(prompt);
+
+    match input {
+        Some(_) => {}
+        None => {
+            std::process::exit(1);
+        }
+    };
+
+    let input = input.unwrap();
+
+    match input.as_str() {
+        "q" => {
+            println!("Goodbye!");
+            None
+        }
+        "b" => client.actual_previous_url().cloned(),
+        "r" => client.previous_url().cloned(),
+        "e" => client.edit_url(),
+        _ if input
+            .parse::<usize>()
+            .ok()
+            .and_then(|index| response.links.get(index))
+            .and_then(|link| client.click_link(&link.href).ok())
+            .is_some() =>
+        {
+            client
+                .click_link(&response.links[input.parse::<usize>().unwrap()].href)
+                .ok()
+        }
+        _ if Url::parse(&input).is_ok() => Some(Url::parse(&input).unwrap()),
+        _ => {
+            println!("Invalid input. Please try again.");
+            Some(url.clone())
+        }
+    }
+}
+
 fn get_user_input(prompt: &str) -> Option<String> {
     let mut rl =
         rustyline::Editor::<(), MemHistory>::with_history(Config::default(), MemHistory::default())
@@ -160,42 +203,20 @@ fn get_secure_user_input(prompt: &str) -> Option<String> {
     }
 }
 
-fn get_client_prompt(client: &mut Client, response: &Response, url: &Url) -> Option<Url> {
-    let prompt = "Select a link by number or type a new URL ([q]uit [b]ack [r]eload): ";
+pub fn get_edit_prompt(text: &str) -> Option<String> {
+    let mut tmpfile = NamedTempFile::new().ok()?;
 
-    let input = get_user_input(prompt);
+    write!(tmpfile, "{text}").ok()?;
 
-    match input {
-        Some(_) => {}
-        None => {
-            std::process::exit(1);
-        }
-    };
+    let path = tmpfile.path().to_owned();
 
-    let input = input.unwrap();
+    let editor = std::env::var("EDITOR").unwrap_or_else(|_| "nano".to_string());
 
-    match input.as_str() {
-        "q" => {
-            println!("Goodbye!");
-            None
-        }
-        "b" => client.actual_previous_url().cloned(),
-        "r" => client.previous_url().cloned(),
-        _ if input
-            .parse::<usize>()
-            .ok()
-            .and_then(|index| response.links.get(index))
-            .and_then(|link| client.click_link(&link.href).ok())
-            .is_some() =>
-        {
-            client
-                .click_link(&response.links[input.parse::<usize>().unwrap()].href)
-                .ok()
-        }
-        _ if Url::parse(&input).is_ok() => Some(Url::parse(&input).unwrap()),
-        _ => {
-            println!("Invalid input. Please try again.");
-            Some(url.clone())
-        }
+    let status = Command::new(editor).arg(&path).status().ok()?;
+
+    if status.success() {
+        fs::read_to_string(path).ok()
+    } else {
+        None
     }
 }

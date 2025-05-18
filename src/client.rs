@@ -2,6 +2,7 @@ use std::process::Command;
 use url::{ParseError, Url};
 
 use crate::errors::{RequestError, ResponseError};
+use crate::handlers::get_edit_prompt;
 use crate::models::{Pager, Request, Response};
 
 pub struct Client {
@@ -70,5 +71,10 @@ impl Client {
         } else {
             None
         }
+    }
+
+    pub fn edit_url(&mut self) -> Option<Url> {
+        get_edit_prompt(self.current_url.as_str())
+            .map(|a| Url::parse(&a).map_err(|_| None::<Url>).unwrap())
     }
 }

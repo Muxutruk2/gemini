@@ -26,6 +26,6 @@ Options:
 - [ ] Go forward in history
 - [x] Handle INPUT 10 and 11
 - [ ] Certificates
-- [ ] Allow user to edit link
+- [x] Allow user to edit link
 - [ ] Bookmarks
 - [ ] A better README and a video to show functionality
