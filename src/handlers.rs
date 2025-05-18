@@ -141,7 +141,7 @@ fn get_user_input(prompt: &str) -> Option<String> {
     let input_result = rl.readline(&prompt);
 
     input_result.map(Some).unwrap_or_else(|e| {
-        error!("Error on getting input: {}", e);
+        error!("Error on getting input: {e}");
         None
     })
 }
@@ -154,7 +154,7 @@ fn get_secure_user_input(prompt: &str) -> Option<String> {
     match read_password() {
         Ok(password) => Some(password),
         Err(e) => {
-            error!("Error getting password input: {}", e);
+            error!("Error getting password input: {e}");
             None
         }
     }
