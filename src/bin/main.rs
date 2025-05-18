@@ -8,8 +8,8 @@
 #![warn(clippy::expect_used)]
 
 use clap::Parser;
-use once_cell::sync::Lazy;
 use std::process::exit;
+use std::sync::LazyLock;
 
 use env_logger::Env;
 use log::{error, warn};
@@ -25,7 +25,7 @@ fn exit_with_error(msg: &str) -> ! {
     exit(1);
 }
 
-static LOGGER: Lazy<()> = Lazy::new(|| {
+static LOGGER: LazyLock<()> = LazyLock::new(|| {
     let env = Env::default().filter_or("RUST_LOG", "debug");
     env_logger::Builder::from_env(env)
         .format_timestamp(None)
@@ -65,7 +65,7 @@ struct Cli {
 }
 
 fn main() -> io::Result<()> {
-    Lazy::force(&LOGGER);
+    LazyLock::force(&LOGGER);
 
     let cli = Cli::parse();
     let url = initialize_url(cli.url);
