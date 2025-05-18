@@ -24,7 +24,7 @@ pub fn handle_request(client: &mut Client, url: &Url) -> Option<Url> {
             StatusCode::TemporaryFailure
             | StatusCode::PermanentFailure
             | StatusCode::ClientCertificateRequired => {
-                error!("{}", response.meta_description);
+                error!("{:?}: {}", response.status_code, response.meta_description);
                 None
             }
             StatusCode::Unknown(code) => {
@@ -37,7 +37,7 @@ pub fn handle_request(client: &mut Client, url: &Url) -> Option<Url> {
             None
         }
         Err(e) => {
-            error!("Response Error: {e:?}");
+            error!("Request Error: {e:?}");
             None
         }
     }
