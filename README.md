@@ -2,6 +2,8 @@
 
 Gemini cli client written in Rust
 
+![Video preview of usage](gemini.gif)
+
 ## Usage
 
 ```
